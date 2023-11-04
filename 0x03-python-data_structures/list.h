@@ -1,13 +1,13 @@
-#ifndef LISTS_H
-#define LISTS_H
+#ifndef LIST_H
+#define LIST_H
 
 /**
  * struct listint_s - singly linked list
- * @n: an integer value
+ * @n: integer
  * @next: points to the next node
  *
- * Description: A structure representing a node in a singly linked list
- * for a project.
+ * Description: singly linked list node structure
+ * for project
  */
 typedef struct listint_s
 {
@@ -15,6 +15,7 @@ typedef struct listint_s
     struct listint_s *next;
 } listint_t;
 
+/* Function prototypes */
 size_t print_listint(const listint_t *h);
 listint_t *add_nodeint_end(listint_t **head, const int n);
 void free_listint(listint_t *head);
