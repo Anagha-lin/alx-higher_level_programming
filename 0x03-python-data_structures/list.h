@@ -1,28 +1,25 @@
-#ifndef ALX_LISTS_H
-#define ALX_LISTS_H
-
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef LISTS_H
+#define LISTS_H
 
 /**
- * struct alx_listint_s - singly linked list
- * @n: integer
+ * struct listint_s - singly linked list
+ * @n: an integer value
  * @next: points to the next node
  *
- * Description: singly linked list node structure
- * for the ALX project
+ * Description: A structure representing a node in a singly linked list
+ * for a project.
  */
-typedef struct alx_listint_s
+typedef struct listint_s
 {
     int n;
-    struct alx_listint_s *next;
-} alx_listint_t;
+    struct listint_s *next;
+} listint_t;
 
-size_t print_alx_listint(const alx_listint_t *h);
-alx_listint_t *add_alx_nodeint_end(alx_listint_t **head, const int n);
-void free_alx_listint(alx_listint_t *head);
+size_t print_listint(const listint_t *h);
+listint_t *add_nodeint_end(listint_t **head, const int n);
+void free_listint(listint_t *head);
 
-int is_palindrome(alx_listint_t **head);
+int is_palindrome(listint_t **head);
 
-#endif /* ALX_LISTS_H */
+#endif
 
