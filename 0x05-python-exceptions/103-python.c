@@ -1,74 +1,102 @@
+```c
 #include <Python.h>
-#include <floatobject.h>
-#include <bytesobject.h>
-#include <listobject.h>
 
 /**
- * print_python_list - Print information about a Python list.
- * @p: Pointer to a PyObject representing a Python list.
+ * print_python_list - Output essential information about Python lists.
+ * @p: A PyObject representing a list object.
  */
-void print_python_list(PyObject *p) {
-    Py_ssize_t size, i;
-    PyObject *item;
+void print_python_list(PyObject *p)
+{
+    Py_ssize_t size, alloc, i;
+    const char *type;
+    PyListObject *list = (PyListObject *)p;
+    PyVarObject *var = (PyVarObject *)p;
 
-    if (!PyList_Check(p)) {
-        fprintf(stderr, "Invalid List Object\n");
-        return;
-    }
+    size = var->ob_size;
+    alloc = list->allocated;
 
-    size = ((PyVarObject *)p)->ob_size;
+    fflush(stdout);
 
     printf("[*] Python list info\n");
-    printf("[*] Size of the Python List = %ld\n", size);
-    printf("[*] Allocated = %ld\n", ((PyListObject *)p)->allocated);
+    if (strcmp(p->ob_type->tp_name, "list") != 0)
+    {
+        printf("  [ERROR] Invalid List Object\n");
+        return;
+    }
 
-    for (i = 0; i < size; ++i) {
-        item = ((PyListObject *)p)->ob_item[i];
-        printf("Element %ld: %s\n", i, Py_TYPE(item)->tp_name);
+    printf("[*] Size of the Python List = %ld\n", size);
+    printf("[*] Allocated = %ld\n", alloc);
+
+    for (i = 0; i < size; i++)
+    {
+        type = list->ob_item[i]->ob_type->tp_name;
+        printf("Element %ld: %s\n", i, type);
+        if (strcmp(type, "bytes") == 0)
+            print_python_bytes(list->ob_item[i]);
+        else if (strcmp(type, "float") == 0)
+            print_python_float(list->ob_item[i]);
     }
 }
 
 /**
- * print_python_bytes - Print information about a Python bytes object.
- * @p: Pointer to a PyObject representing a Python bytes object.
+ * print_python_bytes - Output essential information about Python byte objects.
+ * @p: A PyObject representing a bytes object.
  */
-void print_python_bytes(PyObject *p) {
+void print_python_bytes(PyObject *p)
+{
     Py_ssize_t size, i;
-    char *data;
+    PyBytesObject *bytes = (PyBytesObject *)p;
 
-    if (!PyBytes_Check(p)) {
-        fprintf(stderr, "Invalid Bytes Object\n");
-        return;
-    }
-
-    size = ((PyVarObject *)p)->ob_size;
-    data = ((PyBytesObject *)p)->ob_sval;
+    fflush(stdout);
 
     printf("[.] bytes object info\n");
-    printf("  size: %ld\n", size);
-    printf("  trying string: %s\n", data);
-
-    printf("  first 10 bytes: ");
-    for (i = 0; i < size && i < 10; ++i) {
-        printf("%02x", data[i] & 0xff);
-        if (i < size - 1 && i < 9)
-            printf(" ");
-    }
-    printf("\n");
-}
-
-/**
- * print_python_float - Print information about a Python float object.
- * @p: Pointer to a PyObject representing a Python float object.
- */
-void print_python_float(PyObject *p) {
-    if (!PyFloat_Check(p)) {
-        fprintf(stderr, "Invalid Float Object\n");
+    if (strcmp(p->ob_type->tp_name, "bytes") != 0)
+    {
+        printf("  [ERROR] Invalid Bytes Object\n");
         return;
     }
 
-    printf("[.] float object info\n");
-    printf("  type: %s\n", Py_TYPE(p)->tp_name);
-    printf("  value: %f\n", ((PyFloatObject *)p)->ob_fval);
+    printf("  size: %ld\n", ((PyVarObject *)p)->ob_size);
+    printf("  trying string: %s\n", bytes->ob_sval);
+
+    if (((PyVarObject *)p)->ob_size >= 10)
+        size = 10;
+    else
+        size = ((PyVarObject *)p)->ob_size + 1;
+
+    printf("  first %ld bytes: ", size);
+    for (i = 0; i < size; i++)
+    {
+        printf("%02hhx", bytes->ob_sval[i]);
+        if (i == (size - 1))
+            printf("\n");
+        else
+            printf(" ");
+    }
 }
 
+/**
+ * print_python_float - Output essential information about Python float objects.
+ * @p: A PyObject representing a float object.
+ */
+void print_python_float(PyObject *p)
+{
+    char *buffer = NULL;
+
+    PyFloatObject *float_obj = (PyFloatObject *)p;
+
+    fflush(stdout);
+
+    printf("[.] float object info\n");
+    if (strcmp(p->ob_type->tp_name, "float") != 0)
+    {
+        printf("  [ERROR] Invalid Float Object\n");
+        return;
+    }
+
+    buffer = PyOS_double_to_string(float_obj->ob_fval, 'r', 0,
+                                   Py_DTSF_ADD_DOT_0, NULL);
+    printf("  value: %s\n", buffer);
+    PyMem_Free(buffer);
+}
+```
