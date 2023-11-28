@@ -1,7 +1,1 @@
-#!/usr/bin/python3
-
-# This is a comment
-# Write the name of the function to get the type of an object on the next line
-# without using parentheses
-
-# The function you should write is "type"
+    
