@@ -12,13 +12,11 @@ def text_indentation(text):
         raise TypeError('text must be a string')
 
     # Split the text into sentences using '.', '?', and ':'
-    sentences = [sentence.strip() for sentence in text.split('.') + text.split('?') + text.split(':')]
-
-    # Filter out empty sentences
-    sentences = [sentence for sentence in sentences if sentence]
+    sentences = [sentence for sentence in text.split('.') + text.split('?') + text.split(':') if sentence]
 
     # Print each sentence with 2 new lines
-    print("\n\n".join(sentences))
+    for i, sentence in enumerate(sentences):
+        print(sentence, end="\n\n" if i < len(sentences) - 1 else "")
 
 # Example usage:
 # text_indentation("""Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
