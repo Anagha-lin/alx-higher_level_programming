@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 def print_square(size):
     """
     Print a square using the character '#'.
@@ -19,7 +21,3 @@ def print_square(size):
 
     # Print the square using nested list comprehension
     [print("#" * size) for _ in range(size)]
-
-# Example usage:
-# print_square(5)
-
