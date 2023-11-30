@@ -1,16 +1,25 @@
 def print_square(size):
+    """
+    Print a square using the character '#'.
+
+    Args:
+        size (int): The size length of the square.
+
+    Raises:
+        TypeError: If size is not an integer.
+        ValueError: If size is less than 0.
+    """
     # Check if size is an integer
     if not isinstance(size, int):
-        raise TypeError("size must be an integer")
+        raise TypeError('size must be an integer')
 
-    # Check if size is greater than or equal to 0
+    # Check if size is less than 0
     if size < 0:
-        raise ValueError("size must be >= 0")
+        raise ValueError('size must be >= 0')
 
-    # Check if size is an integer (not a float)
-    if isinstance(size, float) and size % 1 != 0:
-        raise TypeError("size must be an integer")
+    # Print the square using nested list comprehension
+    [print("#" * size) for _ in range(size)]
 
-    # Print the square with the character #
-    for _ in range(size):
-        print("#" * size)
+# Example usage:
+# print_square(5)
+
