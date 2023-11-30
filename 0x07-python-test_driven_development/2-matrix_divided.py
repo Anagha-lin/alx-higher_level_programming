@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-This module is created for Python 0x07 task 1. The project formatting scheme
-increments file numbering by +1 for every task after task 0.
+my task
 """
 
 def matrix_divided(matrix, div):
