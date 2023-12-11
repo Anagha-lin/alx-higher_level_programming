@@ -31,6 +31,28 @@ class Base:
         # Otherwise, return the JSON string representation of the list of dictionaries
         return json.dumps(list_dictionaries)
 
+    @classmethod
+    def save_to_file(cls, list_objs):
+        """Save a list of instances to a JSON file"""
+
+        # If list_objs is None, save an empty list
+        if list_objs is None:
+            list_objs = []
+
+        # Get the class name
+        class_name = cls.__name__
+        # Create the filename
+        filename = "{}.json".format(class_name)
+
+        # Convert the list of instances to a list of dictionaries
+        dict_list = [obj.to_dictionary() for obj in list_objs]
+
+        # Convert the list of dictionaries to a JSON string
+        json_string = cls.to_json_string(dict_list)
+
+        # Write the JSON string to the file
+        with open(filename, "w") as file:
+            file.write(json_string)
 
 if __name__ == "__main__":
 
@@ -48,3 +70,4 @@ if __name__ == "__main__":
 
     b5 = Base()
     print(b5.id)
+
