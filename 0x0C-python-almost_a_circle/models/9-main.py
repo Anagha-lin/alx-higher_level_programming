@@ -1,7 +1,6 @@
-guillaume@ubuntu:~/$ cat 9-main.py
 #!/usr/bin/python3
 """ 9-main """
-from models.square import Square
+from square import Square
 
 if __name__ == "__main__":
 
