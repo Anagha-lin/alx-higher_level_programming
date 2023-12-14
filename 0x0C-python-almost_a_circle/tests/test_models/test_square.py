@@ -1,134 +1,289 @@
 #!/usr/bin/python3
-"""Defines a class TestSquareMethods"""
+"""Tests for the ``Square`` class in the ``square`` module
 
+The ``square`` module is in the ``models`` package"""
 
-from unittest.mock import patch
 import unittest
-import json
-from io import StringIO
-from models.base import Base
-from models.rectangle import Rectangle
-from models.square import Square
+from base import Base
+from square import Square
+from rectangle import Rectangle
+from unittest.mock import patch
 
 
-class TestSquareMethods(unittest.TestCase):
-    """ Defines tests for Square class """
+class TestSquare(unittest.TestCase):
+    """Test cases for the ``Square`` class"""
 
-    def setUp(self):
-        """ Method invoked for each test """
-        Base._Base__nb_objects = 0
+    def test_inheritance(self):
+        """Testing if the class properly inherits from its base class"""
 
-    def tearDown(self):
-        """ Cleans up after each test """
-        pass
+        base1 = Base()
+        rect1 = Rectangle(1, 2)
+        sq1 = Square(1)
+        sq2 = Square(2)
 
-    def test_new_square(self):
-        """ Test new square """
-        s1 = Square(3)
-        s2 = Square(1, 2, 3, 4)
-        self.assertEqual(s1.size, 3)
-        self.assertEqual(s1.width, 3)
-        self.assertEqual(s1.x, 0)
-        self.assertEqual(s1.y, 0)
-        self.assertEqual(s1.id, 1)
-        self.assertEqual(s2.size, 1)
-        self.assertEqual(s2.width, 1)
-        self.assertEqual(s2.x, 2)
-        self.assertEqual(s2.y, 3)
-        self.assertEqual(s2.id, 4)
+        self.assertTrue(type(base1) == Base)
+        self.assertTrue(isinstance(base1, Base))
 
-    def test_attributes_1(self):
-        """ Test for width and x and y types"""
-        with self.assertRaisesRegex(TypeError, "width must be an integer"):
-            Square("1")
-        with self.assertRaisesRegex(TypeError, "x must be an integer"):
-            Square(1, "2")
-        with self.assertRaisesRegex(TypeError, "y must be an integer"):
-            Square(1, 2, "3")
+        self.assertTrue(type(rect1) == Rectangle)
+        self.assertTrue(isinstance(rect1, Rectangle))
+        self.assertFalse(rect1 is Rectangle)
+        self.assertTrue(type(sq1) == Square)
 
-    def test_attributes_2(self):
-        """ Test for width and height ranges"""
-        with self.assertRaisesRegex(ValueError, "width must be > 0"):
-            Square(-1)
-            Square(0)
-        with self.assertRaisesRegex(ValueError, "x must be >= 0"):
-            Square(1, -2)
-        with self.assertRaisesRegex(ValueError, "y must be >= 0"):
-            Square(1, 2, -3)
+        self.assertTrue(isinstance(rect1, Base))
+        self.assertTrue(isinstance(sq1, Base))
+        self.assertTrue(isinstance(sq1, Rectangle))
+        self.assertTrue(isinstance(sq2, Rectangle))
+        self.assertTrue(issubclass(Rectangle, Base))
+        self.assertTrue(issubclass(Square, Base))
+        self.assertTrue(issubclass(Square, Rectangle))
+        self.assertFalse(issubclass(Base, Rectangle))
+        self.assertFalse(issubclass(Rectangle, Square))
+        self.assertFalse(str(rect1) == str(sq1))
+        self.assertFalse(str(sq2) == str(sq1))
 
-    def test_constructor_no_args(self):
-        """ Tests constructor with no args """
+        self.assertFalse(sq1 is sq2)
+        self.assertFalse(sq1 is rect1)
+
+    def test_getters_setters(self):
+        """Testing the getter/setter methods for private instance attributes"""
+        sq1 = Square(1, 2, 3, 4)
+        sq2 = Square(5, 6)
+
+        self.assertEqual(sq1.size, 1)
+        self.assertEqual(sq1.x, 2)
+        self.assertEqual(sq1.y, 3)
+        self.assertEqual(sq1.id, 4)
+
+        self.assertEqual(sq2.size, 5)
+        sq2.size = 6
+        self.assertEqual(sq2.width, 6)
+        self.assertEqual(sq2.height, 6)
+        self.assertEqual(sq2.size, 6)
+
+        sq1.x = 4
+        self.assertEqual(sq1.x, 4)
+
+        sq2.y = 1
+        self.assertEqual(sq2.y, 1)
+
+        sq2.id = 10
+        self.assertEqual(sq2.id, 10)
+
+    def test_validate_attributes(self):
+        """Check types and values of all attributes with error messages"""
+
+        width_type_error_msg = 'width must be an integer'
+        width_value_error_msg = 'width must be > 0'
+
+        x_type_error_msg = 'x must be an integer'
+        x_value_error_msg = 'x must be >= 0'
+
+        y_type_error_msg = 'y must be an integer'
+        y_value_error_msg = 'y must be >= 0'
+
+        invalid_literal_int = "invalid literal for int() with base 10: 'nan'"
+
+        # # 'width' attribute
+        # check string
         with self.assertRaises(TypeError) as e:
-            r = Square()
-        s = "__init__() missing 1 required positional argument: 'size'"
-        self.assertEqual(str(e.exception), s)
+            Square('1', '2')
+        self.assertEqual(str(e.exception), width_type_error_msg)
 
-    def test_C_constructor_many_args(self):
-        """ Tests constructor with many arguments """
+        # check list
         with self.assertRaises(TypeError) as e:
-            r = Square(1, 2, 3, 4, 5)
-        s = "__init__() takes from 2 to 5 positional arguments but 6 \
-were given"
-        self.assertEqual(str(e.exception), s)
+            Square([1], '2')
+        self.assertEqual(str(e.exception), width_type_error_msg)
 
-    def test_is_Rectangle_instance(self):
-        """ Test Square is a Rectangle instance """
-        s1 = Square(1)
-        self.assertEqual(True, isinstance(s1, Rectangle))
+        # check tuple
+        with self.assertRaises(TypeError) as e:
+            Square((1,), '2')
+        self.assertEqual(str(e.exception), width_type_error_msg)
+
+        # check dict
+        with self.assertRaises(TypeError) as e:
+            Square({1: '2'}, '2')
+        self.assertEqual(str(e.exception), width_type_error_msg)
+
+        with self.assertRaises(TypeError) as e:
+            Square(x=1)
+        self.assertEqual(
+            "__init__() missing 1 required positional argument: "
+            "'size'", str(e.exception)
+            )
+
+        # Missing argument
+        # with self.assertRaises(SyntaxError):
+        #     Rectangle(, 1)
+
+        # check Not a Number
+        with self.assertRaises(ValueError) as e:
+            Square(int('nan'), 2)
+        self.assertEqual(str(e.exception), invalid_literal_int)
+
+        # check  0 value of width with error message
+        with self.assertRaises(ValueError) as e:
+            Square(0, 2)
+        self.assertEqual(str(e.exception), width_value_error_msg)
+
+        # check negative value of width with error message
+        with self.assertRaises(ValueError) as e:
+            Square(-1, 2)
+        self.assertEqual(str(e.exception), width_value_error_msg)
+
+        # # 'x' attribute
+        # check string
+        with self.assertRaises(TypeError) as e:
+            Square(1, '')
+        self.assertEqual(str(e.exception), x_type_error_msg)
+
+        # check dict
+        with self.assertRaises(TypeError) as e:
+            Square(1, {})
+        self.assertEqual(str(e.exception), x_type_error_msg)
+
+        # check list
+        with self.assertRaises(TypeError) as e:
+            Square(1, [])
+        self.assertEqual(str(e.exception), x_type_error_msg)
+
+        # check tuple
+        with self.assertRaises(TypeError) as e:
+            Square(1, (1, ))
+        self.assertEqual(str(e.exception), x_type_error_msg)
+
+        # check Not a Number
+        with self.assertRaises(ValueError) as e:
+            Square(1, int('nan'))
+        self.assertEqual(str(e.exception), invalid_literal_int)
+
+        # check negative number
+        with self.assertRaises(ValueError) as e:
+            Square(1, -1)
+        self.assertEqual(str(e.exception), x_value_error_msg)
+
+        # # 'y' attribute
+        # check string
+        with self.assertRaises(TypeError) as e:
+            Square(1, 1, '')
+        self.assertEqual(str(e.exception), y_type_error_msg)
+
+        # check dict
+        with self.assertRaises(TypeError) as e:
+            Square(1, 1, {})
+        self.assertEqual(str(e.exception), y_type_error_msg)
+
+        # check list
+        with self.assertRaises(TypeError) as e:
+            Square(1, 1, [])
+        self.assertEqual(str(e.exception), y_type_error_msg)
+
+        # check tuple
+        with self.assertRaises(TypeError) as e:
+            Square(1, 1, (1, ))
+        self.assertEqual(str(e.exception), y_type_error_msg)
+
+        # check Not a Number
+        with self.assertRaises(ValueError) as e:
+            Square(1, 1, int('nan'))
+        self.assertEqual(str(e.exception), invalid_literal_int)
+
+        # check negative number
+        with self.assertRaises(ValueError) as e:
+            Square(1, 1, -1)
+        self.assertEqual(str(e.exception), y_value_error_msg)
 
     def test_area(self):
-        """ Test area method """
-        s1 = Square(4)
-        self.assertEqual(s1.area(), 16)
+        """Test for the area method"""
 
-    def test_area_2(self):
-        """ Test area method after modifying size """
-        r1 = Square(4)
-        self.assertEqual(r1.area(), 16)
-        r1.size = 9
-        self.assertEqual(r1.area(), 81)
-
-    def test_area_no_args(self):
-        """ Test area method with no arguments"""
-        r = Square(5)
-        with self.assertRaises(TypeError) as e:
-            Square.area()
-        s = "area() missing 1 required positional argument: 'self'"
-        self.assertEqual(str(e.exception), s)
-
-    def test_load_from_file(self):
-        """ Test load JSON file """
-        load_file = Square.load_from_file()
-        self.assertEqual(load_file, load_file)
-
-    def test_basic_display(self):
-        """ Test display without x and y """
-        s1 = Square(6)
-        result = "######\n######\n######\n######\n######\n######\n"
-        with patch('sys.stdout', new=StringIO()) as str_out:
-            s1.display()
-            self.assertEqual(str_out.getvalue(), result)
-
-    def test_display_no_args(self):
-        """ Test display method with no arguments """
-        r = Square(9)
-        with self.assertRaises(TypeError) as e:
-            Square.display()
-        s = "display() missing 1 required positional argument: 'self'"
-        self.assertEqual(str(e.exception), s)
+        sq1 = Square(1)
+        self.assertEqual(sq1.area(), 1)
 
     def test_str(self):
-        """ Test __str__ return value """
-        s1 = Square(3, 1, 3)
-        result = "[Square] (1) 1/3 - 3\n"
-        with patch('sys.stdout', new=StringIO()) as str_out:
-            print(s1)
-            self.assertEqual(str_out.getvalue(), result)
+        """Test the `__str__` method"""
 
-    def test_str_no_args(self):
-        """ Tests __str__ method with no arguments """
-        r = Square(5, 2)
+        sq1 = Square(1, 2)
+        sq1.id = 1
+        str_expected = "[Square] (1) 2/0 - 1"
+        self.assertEqual(str(sq1), str_expected)
+
+    @patch('builtins.print')
+    def test_display(self, mock_print):
+        """Test the display method inherited from `Rectangle`"""
+
+        sq1 = Square(2)
+        sq1.display()
+        mock_print.assert_called_with('##\n##\n', end='')
+
+    def test_update(self):
+        """Test for the `update` method"""
+
+        sq1 = Square(5, 6, 7, 8)
+        self.assertEqual(sq1.id, 8)
+        sq1.update(id=10)
+        self.assertEqual(sq1.id, 10)
+
+        self.assertEqual(sq1.size, 5)
         with self.assertRaises(TypeError) as e:
-            Square.__str__()
-        s = "__str__() missing 1 required positional argument: 'self'"
-        self.assertEqual(str(e.exception), s)
+            sq1.update(size='11')
+        self.assertEqual(str(e.exception), "width must be an integer")
+
+        self.assertEqual(sq1.y, 7)
+        with self.assertRaises(ValueError) as e:
+            sq1.update(y=-1)
+        self.assertEqual(str(e.exception), 'y must be >= 0')
+
+        # args exist and is not empty
+        self.assertEqual(sq1.size, 5)
+        sq1.update(1, 2, id=4, size=3)
+        self.assertEqual(sq1.id, 1)
+
+        # args does not exist
+        args = None
+        self.assertEqual(sq1.id, 1)
+        with self.assertRaises(TypeError) as e:
+            sq1.update(*args, id=4)
+        self.assertEqual(
+                str(e.exception),
+                "update() argument after * must be a sequence, not NoneType"
+                )
+
+        # args exist and is empty
+        args = []
+        sq1.update(*args, id=4, x=8)
+        self.assertEqual(sq1.id, 4)
+        self.assertEqual(sq1.x, 8)
+        self.assertEqual(sq1.area(), 4)
+
+        # args has too many arguments
+        args = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        sq1.update(*args)
+        self.assertEqual(sq1.id, 4)
+
+        # args contains a non int
+        args = [1, '2']
+        with self.assertRaises(TypeError) as e:
+            sq1.update(*args)
+        self.assertEqual(str(e.exception), 'width must be an integer')
+
+    def test_to_dictionary(self):
+        """Test for the public method `to_dictionary`.
+
+        Returns the dictionary representation of a `Square`
+        """
+
+        sq1 = Square(2, 1, 2, 1)
+        the_dict = {'id': 1, 'size': 2, 'x': 1, 'y': 2}
+        self.assertEqual(sq1.to_dictionary(), the_dict)
+
+        sq1.update(id=3, x=6)
+        the_dict = {'id': 3, 'size': 2, 'x': 6, 'y': 2}
+        self.assertEqual(sq1.to_dictionary(), the_dict)
+
+        args = [8, 9]
+        sq1.update(*args)
+        the_dict = {'id': 8, 'size': 9, 'x': 6, 'y': 2}
+        self.assertEqual(sq1.to_dictionary(), the_dict)
+
+
+if __name__ == "__main__":
+    unittest.main()
