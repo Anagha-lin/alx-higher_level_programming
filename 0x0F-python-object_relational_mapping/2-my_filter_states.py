@@ -1,40 +1,35 @@
 #!/usr/bin/python3
 
-'''
-Displays all values in the states table of hbtn_0e_0_usa where name matches the argument.
-'''
+"""
+Lists all states from the database hbtn_0e_0_usa where the name matches the argument.
+"""
 
-import sys
 import MySQLdb
+import sys
 
 if __name__ == "__main__":
-    # Get MySQL credentials and state name from command-line arguments
-    mysql_username = sys.argv[1]
-    mysql_password = sys.argv[2]
-    database_name = sys.argv[3]
-    state_name = sys.argv[4]
-
-    # Connect to MySQL server
+    # Establish connection to MySQL database
     db = MySQLdb.connect(
         host="localhost",
-        port=3306,
-        user=mysql_username,
-        passwd=mysql_password,
-        db=database_name
+        user=sys.argv[1],
+        passwd=sys.argv[2],
+        db=sys.argv[3],
+        port=3306
     )
 
     # Create a cursor object
-    cursor = db.cursor()
+    cur = db.cursor()
 
     # Execute SQL query to select states matching the provided state name
-    cursor.execute("SELECT * FROM states WHERE name = %s ORDER BY id ASC", (state_name,))
+    cur.execute("SELECT * FROM states WHERE name LIKE BINARY '{}'"
+                .format(sys.argv[4]))
 
     # Fetch and print the results
-    rows = cursor.fetchall()
+    rows = cur.fetchall()
     for row in rows:
         print(row)
 
     # Close cursor and database connection
-    cursor.close()
+    cur.close()
     db.close()
 
