@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 """Defines a Rectangle class."""
+
 from models.base import Base
+
 
 class Rectangle(Base):
     """Represent a rectangle."""
@@ -20,6 +22,11 @@ class Rectangle(Base):
         self.height = height
         self.x = x
         self.y = y
+
+    def __str__(self):
+        """Return a string representation of the rectangle."""
+        return "[Rectangle] ({}) {}/{} - {}/{}".format(
+            self.id, self.x, self.y, self.width, self.height)
 
     @property
     def width(self):
@@ -88,14 +95,23 @@ class Rectangle(Base):
         for _ in range(self.__height):
             print(" " * self.__x + "#" * self.__width)
 
-    def __str__(self):
-        """Return a string representation of the rectangle."""
-        return "[Rectangle] ({}) {}/{} - {}/{}".format(
-            self.id, self.__x, self.__y, self.__width, self.__height)
-
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         """Assign arguments to attributes."""
         attrs = ["id", "width", "height", "x", "y"]
         for i, arg in enumerate(args):
             setattr(self, attrs[i], arg)
+        if args:
+            return
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def to_dictionary(self):
+        """Return the dictionary representation of the rectangle."""
+        return {
+            "id": self.id,
+            "width": self.width,
+            "height": self.height,
+            "x": self.x,
+            "y": self.y
+        }
 
