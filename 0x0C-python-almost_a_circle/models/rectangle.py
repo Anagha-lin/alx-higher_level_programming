@@ -93,3 +93,9 @@ class Rectangle(Base):
         return "[Rectangle] ({}) {}/{} - {}/{}".format(
             self.id, self.__x, self.__y, self.__width, self.__height)
 
+    def update(self, *args):
+        """Assign arguments to attributes."""
+        attrs = ["id", "width", "height", "x", "y"]
+        for i, arg in enumerate(args):
+            setattr(self, attrs[i], arg)
+
