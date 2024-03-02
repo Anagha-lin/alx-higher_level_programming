@@ -1,0 +1,2 @@
+The complexity of the algorithm implemented in 6-peak.py is: O(log(n))
+
