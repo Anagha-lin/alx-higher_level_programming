@@ -3,27 +3,17 @@
 const fs = require('fs');
 const request = require('request');
 
+// Extract command-line arguments
 const url = process.argv[2];
 const filePath = process.argv[3];
 
-request.get(url, (error, response, body) => {
-  if (error) {
+// Make a GET request and pipe response to file
+request(url)
+  .on('error', (error) => {
     console.error(error);
-    return;
-  }
-
-  if (response.statusCode !== 200) {
-    console.error(`Error: Status code ${response.statusCode}`);
-    return;
-  }
-
-  // Write response body to file
-  fs.writeFile(filePath, body, 'utf-8', (err) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log(`The response body has been saved to ${filePath}`);
+  })
+  .pipe(fs.createWriteStream(filePath, { encoding: 'utf-8' }))
+  .on('finish', () => {
+    console.log(`Successfully saved the contents of ${url} to ${filePath}`);
   });
-});
 
